@@ -1,0 +1,29 @@
+{
+  "name": "farkle-scorecard",
+  "version": "1.0.0",
+  "description": "Farkel Scorecard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryanptomlinson/farkle-scorecard.git"
+  },
+  "author": "Ryan Tomlinson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ryanptomlinson/farkle-scorecard/issues"
+  },
+  "homepage": "https://github.com/ryanptomlinson/farkle-scorecard#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-async-handler": "^1.2.0",
+    "mongoose": "^6.9.0"
+  }
+}
