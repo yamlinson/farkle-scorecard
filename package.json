@@ -1,7 +1,7 @@
 {
   "name": "farkle-scorecard",
   "version": "1.0.0",
-  "description": "Farkel Scorecard",
+  "description": "Farkle Scorecard",
   "main": "server.js",
   "scripts": {
     "start": "node server/server.js",
