@@ -11,8 +11,7 @@ const Game = require("../models/game.model");
 const getGame = asyncHandler(async (req, res) => {
   const game = await Game.findById(req.params.id);
   if (!game) {
-    res.status(404);
-    throw new Error("Game not found");
+    return res.status(404).send("Game not found");
   }
   return res.status(200).json(game);
 });
@@ -42,8 +41,9 @@ const createGame = asyncHandler(async (req, res) => {
   const maxGames = 5;
   const currentGames = await Game.find({ host_id: user }).count();
   if (currentGames >= maxGames) {
-    res.status(403);
-    throw new Error(`Game limit reached ${currentGames}/${maxGames}`);
+    return res
+      .status(403)
+      .send(`Game limit reached ${currentGames}/${maxGames}`);
   }
   var newID;
   while (true) {
@@ -65,8 +65,7 @@ const createGame = asyncHandler(async (req, res) => {
 const destroyGame = asyncHandler(async (req, res) => {
   const game = await Game.findById(req.params.id);
   if (!game) {
-    res.status(404);
-    throw new Error("Game not found");
+    return res.status(404).send("Game not found");
   }
   await Game.deleteOne({ _id: req.params.id });
   return res.status(204).json();
@@ -76,19 +75,17 @@ const destroyGame = asyncHandler(async (req, res) => {
 // @access  Private
 const setPlayers = asyncHandler(async (req, res) => {
   if (req.body.players.length < 2) {
-    res.status(400);
-    throw new Error("Must include info for at least 2 players");
+    return res.status(400).send("Must include info for at least 2 players");
   }
   var game = await Game.findById(req.params.id);
   if (game.started) {
-    res.status(400);
-    throw new Error("Players cannot be changed after game start");
+    return res.status(400).send("Players cannot be changed after game start");
   }
   game = await Game.updateOne(
     { _id: req.params.id },
     { players: req.body.players }
   );
-  res.status(200).json(game);
+  return res.status(200).json(game);
 });
 // @desc    Start game
 // @route   PUT /api/game/:id
@@ -96,12 +93,10 @@ const setPlayers = asyncHandler(async (req, res) => {
 const startGame = asyncHandler(async (req, res) => {
   var game = await Game.findById(req.params.id);
   if (!game) {
-    res.status(404);
-    throw new Error("Not found");
+    return res.status(404).send("Not found");
   }
   if (game.players.length < 2) {
-    res.status(400);
-    throw new Error("Add at least 2 players to start");
+    return res.status(400).send("Add at least 2 players to start");
   }
   game = await Game.updateOne({ _id: req.params.id }, { started: true });
   return res.status(200).json(game);
@@ -112,24 +107,22 @@ const startGame = asyncHandler(async (req, res) => {
 const submitTurn = asyncHandler(async (req, res) => {
   var game = await Game.findById(req.params.id);
   if (!game) {
-    res.status(400);
-    throw new Error(`Game ${req.params.id} not found`);
+    return res.status(400).send(`Game ${req.params.id} not found`);
   }
   if (!game.started) {
-    res.status(400);
-    throw new Error("Game must be started before turns can be submitted");
+    return res
+      .status(400)
+      .send("Game must be started before turns can be submitted");
   }
   if (!req.body.name || !req.body.score) {
-    res.status(400);
-    throw new Error("Must include name and score");
+    return res.status(400).send("Must include name and score");
   }
   const playerFound = await Game.findOne({
     _id: req.params.id,
     players: { $elemMatch: { name: req.body.name } },
   });
   if (!playerFound) {
-    res.status(400);
-    throw new Error(`Player ${req.body.name} not found`);
+    return res.status(400).send(`Player ${req.body.name} not found`);
   }
   await Game.updateOne({ _id: req.params.id }, { $push: { turns: req.body } });
   game = await Game.updateOne(
@@ -144,11 +137,11 @@ const submitTurn = asyncHandler(async (req, res) => {
 const undoTurn = asyncHandler(async (req, res) => {
   var game = await Game.findById(req.params.id);
   if (!game) {
-    return res.status(400).json({ message: `Game ${req.params.id} not found` });
+    return res.status(400).send(`Game ${req.params.id} not found`);
   }
   const turnCount = game.turns.length;
   if (turnCount <= 0) {
-    return res.status(400).json({ message: "No turn to pop" });
+    return res.status(400).send("No turn to pop");
   }
   const previousTurn = game.turns[turnCount - 1];
   await Game.updateOne({ _id: req.params.id }, { $pop: { turns: 1 } });
@@ -156,7 +149,7 @@ const undoTurn = asyncHandler(async (req, res) => {
     { _id: req.params.id, "players.name": previousTurn.name },
     { $inc: { "players.$.score": 0 - previousTurn.score } }
   );
-  res.status(200).json(game);
+  return res.status(200).json(game);
 });
 
 module.exports = {
