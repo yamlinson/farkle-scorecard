@@ -2,7 +2,11 @@ const mongoose = require("mongoose");
 
 const gameSchema = mongoose.Schema({
   _id: Number,
-  host_id: Number,
+  hostUser: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "User",
+  },
   started: { type: Boolean, default: false },
   lastTurns: { type: Boolean, default: false },
   turnsRemaining: Number,
