@@ -23,6 +23,16 @@
   </head>
 
   <body>
+    <div class="navbar bg-base-100 shadow-sm">
+      <div class="flex-1">
+        <%= link_to "Farkle Scorecard", root_path, class: "btn btn-ghost text-xl" %>
+      </div>
+      <% if Current.user %>
+        <div class="flex-none">
+          <%= button_to "Sign out", session_path, method: :delete, class: "btn btn-ghost" %>
+        </div>
+      <% end %>
+    </div>
     <%= yield %>
   </body>
 </html>

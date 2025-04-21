@@ -1,11 +1,23 @@
 <%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
 <%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
 
-<%= form_with url: session_path do |form| %>
-  <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address] %><br>
-  <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72 %><br>
-  <%= form.submit "Sign in" %>
-<% end %>
-<br>
+<div class="flex justify-center">
+  <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
+    <legend class="fieldset-legend text-base">Please sign in to continue</legend>
+    <%= form_with url: session_path do |form| %>
+      
+      <label for="email_address" class="label">Email Address</label><br>
+      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address], class: "input mt-2" %><br>
 
-<%= link_to "Forgot password?", new_password_path %>
+      <label for="password" class="label mt-4">Password</label>
+      <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72, class: "input mt-2" %><br>
+
+      <%= form.submit "Sign in", class: "btn btn-neutral mt-4 w-full" %>
+    <% end %>
+
+    <%= link_to "Forgot password?", new_password_path, class: "link mt-2 mx-auto" %>
+
+  </fieldset>
+  <br>
+
+</div>
