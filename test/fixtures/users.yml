@@ -3,7 +3,17 @@
 one:
   email_address: one@example.com
   password_digest: <%= password_digest %>
+  host: true
+  admin: true
 
 two:
   email_address: two@example.com
   password_digest: <%= password_digest %>
+  host: true
+  admin: false
+
+three:
+  email_address: three@example.com
+  password_digest: <%= password_digest %>
+  host: false
+  admin: false

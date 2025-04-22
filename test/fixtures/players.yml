@@ -1,13 +1,13 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  name: MyString
-  turn_order: 1
-  score: 1
-  game: one
-
-two:
-  name: MyString
-  turn_order: 1
-  score: 1
-  game: two
+# one:
+#   name: MyString
+#   turn_order: 1
+#   score: 1
+#   game: one
+#
+# two:
+#   name: MyString
+#   turn_order: 1
+#   score: 1
+#   game: two
