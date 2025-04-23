@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_22_173559) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_23_173030) do
   create_table "games", force: :cascade do |t|
     t.string "code"
     t.boolean "started"
@@ -20,6 +20,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_22_173559) do
     t.integer "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_games_on_code", unique: true
     t.index ["user_id"], name: "index_games_on_user_id"
   end
 
@@ -31,6 +32,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_22_173559) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["game_id"], name: "index_players_on_game_id"
+    t.index ["name", "game_id"], name: "index_players_on_name_and_game_id", unique: true
   end
 
   create_table "sessions", force: :cascade do |t|
