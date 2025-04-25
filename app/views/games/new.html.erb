@@ -71,20 +71,20 @@
         },
         body: JSON.stringify(data)
       })
-        .then(response => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            throw new Error('Submission failed');
-          }
-        })
-        .then(data => {
-          console.log("Game started:", data);
-          window.location.href = `/games/${data.id}`
-        })
-        .catch(error => {
-          console.error("Error submitting request:", error);
-        });
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Submission failed');
+        }
+      })
+      .then(data => {
+        console.log("Game started:", data);
+        window.location.href = `/games/${data.id}`
+      })
+      .catch(error => {
+        console.error("Error submitting request:", error);
+      });
 
     })
 
