@@ -33,7 +33,7 @@ class GamesController < ApplicationController
       player_ids = []
 
       player_names.each_with_index do |name, index|
-        player = Player.create(name: name, game_id: @game.id, turn_order: index+1)
+        player = Player.create(name: name, game_id: @game.id, turn_order: index+1, score: 0)
         player_ids << player.id if player.persisted?
       end
 
