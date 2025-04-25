@@ -7,6 +7,8 @@ class GamesController < ApplicationController
 
   def show
     set_game
+    set_players
+    set_turns
   end
 
   def start_game
@@ -43,11 +45,58 @@ class GamesController < ApplicationController
     end
   end
 
+  def update
+    game = Game.find(params.expect(:id))
+    players = Player.where(game_id: game.id)
+    turns = Turn.where(game_id: game.id)
+
+    current_turn = (turns.length % players.length) + 1
+    current_player = players.find { |player| player.turn_order == current_turn }
+    if current_turn == players.length
+      next_turn = 1
+    else
+      next_turn = (turns.length % players.length) + 2
+    end
+    next_player = players.find { |player| player.turn_order == next_turn }
+
+    turn_score = params.require(:score)
+
+    Turn.create(
+      player_id: current_player.id,
+      game_id: game.id,
+      score: turn_score
+    )
+
+    new_score = current_player.score + turn_score
+    current_player.score = new_score
+
+    if current_player.save
+      render json: {
+        message: "Turn submitted successfully",
+        newScore: {
+          "name" => current_player.name,
+          "score" => new_score
+        },
+        nextPlayerName: next_player.name },
+        status: :created
+    else
+      render json: { error: "Could not submit turn" }, status: :unprocessable_entity
+    end
+  end
+
   # Utils
   private
 
   def set_game
     @game = Game.find(params.expect(:id))
+  end
+
+  def set_players
+    @players = Player.where(game_id: params.expect(:id))
+  end
+
+  def set_turns
+    @turns = Turn.where(game_id: params.expect(:id))
   end
 
   def generate_game_code

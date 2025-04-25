@@ -1,5 +1,40 @@
+<div class="flex flex-col items-center mt-8">
+  <h2 class="text-2xl">New Game</h2>
+
+  <div class="flex flex-col items-center bg-base-200 border-base-300 rounded-box w-sm md:w-lg lg:w-2xl border p-4 mt-4">
+    <h3 class="text-lg">Who's Playing?</h3>
+    <div id="controls" class="flex w-full justify-between px-4 mt-4">
+      <button id="add-player" class="btn btn-primary w-1/4">Add</button>
+      <div class="flex w-1/4 gap-2">
+        <button id="player-up" class="btn btn-primary w-1/2">&#8593;</button> <!-- Up arrow -->
+        <button id="player-down" class="btn btn-primary w-1/2">&#8595;</button> <!-- Down arrow -->
+      </div>
+      <button id="remove-player" class="btn btn-primary w-1/4">Remove</button>
+    </div>
+    <%= form_with(url: start_game_path, method: :post, local: true, id: "new-game-form") do |form| %>
+      <div class="overflow-x-auto mt-4">
+        <table class="table">
+          <tbody id="players-container">
+            <%= render "player_input" %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+      
+    <div role="alert" class="alert alert-info alert-outline mt-4">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="h-6 w-6 shrink-0 stroke-current">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span>Double check player order before starting. It can't be changed later.</span>
+    </div>
+
+    <button id="start-game" class="btn btn-primary mt-4">Start Game</button>
+
+  </div>
+</div>
+
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("turbo:load", () => {
     const playersContainer = document.getElementById("players-container")
 
     // Add new player input
@@ -90,38 +125,3 @@
 
   });
 </script>
-
-<div class="flex flex-col items-center mt-8">
-  <h2 class="text-2xl">New Game</h2>
-
-  <div class="flex flex-col items-center bg-base-200 border-base-300 rounded-box w-sm md:w-lg lg:w-2xl border p-4 mt-4">
-    <h3 class="text-lg">Who's Playing?</h3>
-    <div id="controls" class="flex w-full justify-between px-4 mt-4">
-      <button id="add-player" class="btn btn-primary w-1/4">Add</button>
-      <div class="flex w-1/4 gap-2">
-        <button id="player-up" class="btn btn-primary w-1/2">&#8593;</button> <!-- Up arrow -->
-        <button id="player-down" class="btn btn-primary w-1/2">&#8595;</button> <!-- Down arrow -->
-      </div>
-      <button id="remove-player" class="btn btn-primary w-1/4">Remove</button>
-    </div>
-    <%= form_with(url: start_game_path, method: :post, local: true, id: "new-game-form") do |form| %>
-      <div class="overflow-x-auto mt-4">
-        <table class="table">
-          <tbody id="players-container">
-            <%= render "player_input" %>
-          </tbody>
-        </table>
-      </div>
-    <% end %>
-      
-    <div role="alert" class="alert alert-info alert-outline mt-4">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="h-6 w-6 shrink-0 stroke-current">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-      </svg>
-      <span>Double check player order before starting. It can't be changed later.</span>
-    </div>
-
-    <button id="start-game" class="btn btn-primary mt-4">Start Game</button>
-
-  </div>
-</div>

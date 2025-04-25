@@ -1,1 +1,149 @@
-<%= @game.code %>
+<div class="flex flex-col items-center mt-8">
+  <h2 class="text-2xl"><span class="text-accent">Game Code: </span><%= @game.code %></h2>
+
+  <div class="flex flex-col items-center bg-base-200 border-base-300 rounded-box w-sm md:w-lg lg:w-2xl border p-4 mt-4">
+
+    <div id="controls" class="flex flex-col items-center mt-4">
+      <% current_turn = (@turns.length % @players.length) + 1 %>
+      <% current_player = @players.find { |player| player.turn_order == current_turn } %>
+      <p>It's <span id="current-player" class="text-accent"><%= current_player.name %></span>'s turn</p>
+      <%= form_with(url: game_path, method: :put, local: false, id: "show-game-form", data: { turbo: false }) do |form| %>
+        <div class="join mt-2">
+          <div>
+            <label class="input join-item">
+              <span class="text-accent">Score:</span>
+              <input
+                type="number"
+                id="score-input"
+                class="grow text-right"
+                min="0"
+                placeholder="Score"
+                value="0"
+                onfocus="this.select()"
+              />
+            </label>
+          </div>
+          <%= 
+            form.submit "Submit",
+            class: "btn btn-primary join-item",
+            id: "submit-turn",
+            data: { disable_with: "Submitting..." }
+          %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="overflow-x-auto mt-8">
+      <table id="players-table" class="table">
+        <caption>Players</caption>
+        <thead>
+          <tr>
+            <th>Turn</th>
+            <th>Name</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @players.each do |player| %>
+            <tr>
+              <td><%= player.turn_order %></td>
+              <td><%= player.name %></td>
+              <td><%= player.score %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="overflow-x-auto mt-8">
+      <table id="turns-table" class="table">
+        <caption>Turn History</caption>
+        <thead>
+          <tr>
+            <th>Turn</th>
+            <th>Name</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @turns.reverse.each_with_index do |turn, index| %>
+            <tr>
+              <% turn_number = @turns.length - index %>
+              <td><%= turn_number %></td>
+              <td><%= @players.find { |player| player.id == turn.player_id }.name %></td>
+              <td><%= turn.score %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  document.addEventListener("turbo:load", () => {
+
+    const submitTurnForm = document.getElementById("show-game-form");
+    const currentPlayerSpan = document.getElementById("current-player");
+    const playersTableBody = document.querySelector('#players-table tbody')
+    const turnsTableBody = document.querySelector("#turns-table tbody");
+    const scoreInput = document.getElementById("score-input")
+
+    scoreInput.focus();
+
+    // Submit turn
+    submitTurnForm.addEventListener("submit", () => {
+      event.preventDefault();
+
+      const score = parseInt(scoreInput.value, 10);
+      const data = {
+        score: score
+      };
+
+      fetch('#', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Submission failed');
+        }
+      })
+      .then(data => {
+        console.log("Turn submitted:", data);
+        // Update current turn display
+        const lastPlayer = currentPlayerSpan.innerHTML; // Save previous player for later use
+        currentPlayerSpan.innerHTML = data.nextPlayerName;
+        // Update score table
+        const row = Array.from(playersTableBody.rows).find(row => row.cells[1].textContent === data.newScore["name"]);
+        if (row) {
+          row.cells[2].textContent = data.newScore["score"];
+        }
+        // Update turn history table
+        const turnCount = turnsTableBody.rows.length;
+        const newTurnRow = turnsTableBody.insertRow(0);
+        const newTurnCount = newTurnRow.insertCell();
+        newTurnCount.innerHTML = turnCount + 1
+        const newTurnName = newTurnRow.insertCell();
+        newTurnName.innerHTML = lastPlayer;
+        const newTurnScore = newTurnRow.insertCell();
+        newTurnScore.innerHTML = score;
+        // Reset input
+        scoreInput.value = 0;
+        scoreInput.focus();
+        scoreInput.select();
+      })
+      .catch(error => {
+        console.error("Error submitting request:", error)
+      });
+    });
+
+  });
+</script>
