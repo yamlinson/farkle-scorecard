@@ -101,7 +101,8 @@ class GamesController < ApplicationController
 
   def generate_game_code
     loop do
-      game_code = Array.new(6) { ("A".."Z").to_a.sample }.join
+      code_letters = ("A".."Z").to_a - [ "A", "E", "G", "I", "O", "U" ]
+      game_code = Array.new(6) { code_letters.sample }.join
       break game_code unless Game.exists?(code: game_code)
     end
   end
