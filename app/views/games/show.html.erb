@@ -3,7 +3,7 @@
 
   <div class="flex flex-col items-center bg-base-200 border-base-300 rounded-box w-sm md:w-lg lg:w-2xl border p-4 mt-4">
 
-    <div id="controls" class="flex flex-col items-center mt-4">
+    <div id="controls" class="flex flex-col items-center mt-4" <% if @game.complete %> hidden <% end %> >
       <% current_turn = (@turns.length % @players.length) + 1 %>
       <% current_player = @players.find { |player| player.turn_order == current_turn } %>
       <p>It's <span id="current-player" class="text-accent"><%= current_player.name %></span>'s turn</p>
@@ -33,7 +33,21 @@
       <% end %>
     </div>
 
+    <div role="alert" id="last-turn-alert" class="alert alert-warning alert-outline mt-4" <% if !@game.last_round || @game.complete %> hidden <% end %> >
+      <span>Last turns!</span>
+    </div>
+
+    <div role="alert" id="game-over-alert" class="alert alert-success alert-outline mt-4" <% if !@game.complete %> hidden <% end %> >
+      <span>Game complete!</span>
+    </div>
+
     <div class="overflow-x-auto mt-8">
+      <% if @game.last_round && !@game.complete %>
+        <% winning = @players.maximum(:score) %>
+      <% end %>
+      <% if @game.complete %>
+        <% won = @players.maximum(:score) %>
+      <% end %>
       <table id="players-table" class="table">
         <caption>Players</caption>
         <thead>
@@ -45,7 +59,10 @@
         </thead>
         <tbody>
           <% @players.each do |player| %>
-            <tr>
+            <tr 
+              <% if player.score == winning %> class="bg-info text-neutral" <% end %>
+              <% if player.score == won %> class="bg-success text-neutral" <% end %>
+              >
               <td><%= player.turn_order %></td>
               <td><%= player.name %></td>
               <td><%= player.score %></td>
@@ -117,7 +134,6 @@
         }
       })
       .then(data => {
-        console.log("Turn submitted:", data);
         // Update current turn display
         const lastPlayer = currentPlayerSpan.innerHTML; // Save previous player for later use
         currentPlayerSpan.innerHTML = data.nextPlayerName;
@@ -125,6 +141,50 @@
         const row = Array.from(playersTableBody.rows).find(row => row.cells[1].textContent === data.newScore["name"]);
         if (row) {
           row.cells[2].textContent = data.newScore["score"];
+        }
+        // Check for end-of-game conditions
+        const lastTurnAlert = document.getElementById("last-turn-alert");
+        const gameOverAlert = document.getElementById("game-over-alert");
+        if (data.gameComplete) {
+          lastTurnAlert.hidden = true;
+          gameOverAlert.hidden = false;
+          var highestScore = 0;
+          for (let i = 0; i < playersTableBody.rows.length; i++) {
+            r = playersTableBody.rows[i];
+            const s = parseInt(r.cells[2].textContent);
+            if (s > highestScore) {
+              highestScore = s;
+            }
+          }
+          for (let i = 0; i < playersTableBody.rows.length; i++) {
+            r = playersTableBody.rows[i];
+            if (parseInt(r.cells[2].textContent) == highestScore) {
+              r.classList.remove("bg-info", "text-neutral");
+              r.classList.add("bg-success", "text-neutral");
+            } else {
+              r.classList.remove("bg-info", "text-neutral");
+              r.classList.remove("bg-success", "text-neutral");
+            }
+          }
+          document.getElementById("controls").hidden = true;
+        } else if (data.lastRound) {
+          lastTurnAlert.hidden = false;
+          var highestScore = 0;
+          for (let i = 0; i < playersTableBody.rows.length; i++) {
+            r = playersTableBody.rows[i];
+            const s = parseInt(r.cells[2].textContent);
+            if (s > highestScore) {
+              highestScore = s;
+            }
+          }
+          for (let i = 0; i < playersTableBody.rows.length; i++) {
+            r = playersTableBody.rows[i];
+            if (parseInt(r.cells[2].textContent) == highestScore) {
+              r.classList.add("bg-info", "text-neutral");
+            } else {
+              r.classList.remove("bg-info", "text-neutral");
+            }
+          }
         }
         // Update turn history table
         const turnCount = turnsTableBody.rows.length;

@@ -50,6 +50,11 @@ class GamesController < ApplicationController
     players = Player.where(game_id: game.id)
     turns = Turn.where(game_id: game.id)
 
+    if game.complete
+      render json: { error: "Game already complete" }, status: :unprocessable_entity
+      return
+    end
+
     current_turn = (turns.length % players.length) + 1
     current_player = players.find { |player| player.turn_order == current_turn }
     if current_turn == players.length
@@ -71,13 +76,31 @@ class GamesController < ApplicationController
     current_player.score = new_score
 
     if current_player.save
+
+      if game.last_round && !game.complete
+        game.turns_left -= 1
+        if game.turns_left == 0
+          game.complete = true
+        end
+        game.save
+      end
+
+      if new_score >= 10000 && !game.last_round
+        game.last_round = true
+        game.turns_left = players.length - 1
+        game.save
+      end
+
       render json: {
         message: "Turn submitted successfully",
         newScore: {
           "name" => current_player.name,
           "score" => new_score
         },
-        nextPlayerName: next_player.name },
+        nextPlayerName: next_player.name,
+        lastRound: game.last_round,
+        gameComplete: game.complete,
+      },
         status: :created
     else
       render json: { error: "Could not submit turn" }, status: :unprocessable_entity
